@@ -70,6 +70,30 @@
         .sub strong {
             color: #64748b;
             font-weight: 500;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        /* Toast 气泡样式 */
+        #toast {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(30, 41, 59, 0.92);
+            color: #ffffff;
+            padding: 12px 28px;
+            border-radius: 40px;
+            font-size: 15px;
+            font-weight: 500;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;  /* 避免干扰点 */
+            z-index: 999;
+        }
+        #toast.show {
+            opacity: 1;
         }
     </style>
 </head>
@@ -81,8 +105,55 @@
         <p>如需访问，请与您的上游管理员确认权限配置。</p>
         <div class="sub">
             <span>这是测试页面 · 仅限内部调试使用</span><br>
-            <span>如有疑问请联系 <strong>moss@aoeb101la.top</strong></span>
+            <span>如有疑问请联系 <strong id="email">moss@aoeb101la.top</strong></span>
         </div>
     </div>
+
+    <!-- Toast 元素 -->
+    <div id="toast">已复制</div>
+
+    <script>
+        (function() {
+            const emailEl = document.getElementById('email');
+            const toast = document.getElementById('toast');
+            let clickCount = 0;
+            let resetTimer = null;
+            const RESET_DELAY = 300; // 毫秒，超过此间隔则重置计数
+            let toastTimer = null;    // 用于隐藏 toast
+
+            emailEl.addEventListener('click', function(e) {
+                // 清除之前的重置定时器
+                if (resetTimer) {
+                    clearTimeout(resetTimer);
+                }
+
+                clickCount++;
+
+                if (clickCount >= 5) {
+                    // 第5次点击：跳转
+                    window.location.href = './docs';
+                    return;
+                }
+
+                // 前4次：显示 toast “已复制”
+                toast.classList.add('show');
+
+                // 清除之前可能残留的隐藏定时器
+                if (toastTimer) {
+                    clearTimeout(toastTimer);
+                }
+                // 0.8 秒后自动隐藏
+                toastTimer = setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 800);
+
+                // 设置重置定时器：如果超过 RESET_DELAY 无新点击，计数归零
+                resetTimer = setTimeout(() => {
+                    clickCount = 0;
+                    resetTimer = null;
+                }, RESET_DELAY);
+            });
+        })();
+    </script>
 </body>
 </html>
